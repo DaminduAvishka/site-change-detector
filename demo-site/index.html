@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Brightside Coffee Roasters (demo site)</title>
+  <style>
+    body { font: 16px/1.6 system-ui, sans-serif; max-width: 640px; margin: 32px auto; padding: 0 16px; color: #1d1d1d; }
+    h1 { margin-bottom: 4px; } h2 { margin-top: 28px; }
+    li { margin: 4px 0; }
+    aside { margin-top: 40px; padding: 14px 16px; background: #f1f1f1; border-radius: 8px; font-size: 14px; }
+    button { font: inherit; padding: 6px 12px; margin-right: 8px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <main id="site"></main>
+
+  <aside>
+    <p><strong>Demo controls</strong> (the extension ignores this box). Pretend you are the website owner:</p>
+    <p><button id="publish">Publish an update</button><button id="reset">Reset site</button></p>
+    <p id="status"></p>
+  </aside>
+
+  <script>
+    // The "site" is drawn from a version number saved in localStorage, so it can change between visits.
+    const MAX = 3;
+    const get = () => Number(localStorage.getItem('demoVersion') || 0);
+
+    function add(parent, tag, text) {
+      const el = document.createElement(tag);
+      el.textContent = text;
+      parent.append(el);
+      return el;
+    }
+    function link(li, text, href) {
+      const a = document.createElement('a');
+      a.href = href; a.textContent = text;
+      li.append(a);
+    }
+
+    function draw() {
+      const v = get();
+      const site = document.getElementById('site');
+      site.replaceChildren();
+
+      add(site, 'h1', 'Brightside Coffee Roasters');
+      add(site, 'p', 'Small-batch coffee, roasted every morning in the heart of the city.');
+
+      add(site, 'h2', 'Latest news');
+      const news = add(site, 'ul', '');
+      if (v < 3) add(news, 'li', 'Summer iced coffee menu ends this Sunday, so grab one while you can.');
+      add(news, 'li', 'We now compost all of our used coffee grounds with a local farm.');
+      if (v >= 1) add(news, 'li', 'New single-origin Ethiopian Guji beans just landed in store.');
+      if (v >= 3) add(news, 'li', 'Opening hours changed: we now close at 9 pm on Fridays.');
+
+      add(site, 'h2', 'Our beans');
+      const beans = add(site, 'ul', '');
+      link(add(beans, 'li', ''), 'House blend, medium roast, chocolate and nut', '/beans/house');
+      link(add(beans, 'li', ''), 'Colombia Huila, light roast, caramel and citrus', '/beans/huila');
+      if (v >= 1) link(add(beans, 'li', ''), 'Ethiopia Guji, light roast, jasmine and peach', '/beans/guji');
+
+      if (v >= 2) {
+        add(site, 'h2', 'Workshops');
+        add(site, 'p', 'Join our Saturday latte art workshop. Limited to eight people.');
+        link(add(site, 'p', ''), 'Book a workshop', '/workshops');
+      }
+
+      document.getElementById('status').textContent =
+        'Site version: ' + v + ' of ' + MAX + '. After publishing, reload this page (or press "Rescan now" in the extension).';
+    }
+
+    document.getElementById('publish').onclick = () => {
+      localStorage.setItem('demoVersion', Math.min(get() + 1, MAX));
+      draw();
+    };
+    document.getElementById('reset').onclick = () => { localStorage.setItem('demoVersion', 0); draw(); };
+    draw();
+  </script>
+</body>
+</html>
